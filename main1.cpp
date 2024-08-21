@@ -104,6 +104,7 @@ void *sendMessage(void *para) {
             cout << "Size : " << size <<endl;
             write(fd, &header, headerSize);
             ssize_t written = write(fd, data, size);
+            written += write(fd, "END", 3);
             if (written <= 0) {
                 std::cerr << "ERROR: Failed to write to serial port" << std::endl;
             }
@@ -124,6 +125,7 @@ void *sendMessage(void *para) {
             cout << "Size: " << size <<endl;
             write(fd, &header, headerSize);
             ssize_t written = write(fd, data, size);
+            written += write(fd, "END", 3);
             if (written  <= 0) {
                 std::cerr << "ERROR: Failed to write to serial port" << std::endl;
             }
