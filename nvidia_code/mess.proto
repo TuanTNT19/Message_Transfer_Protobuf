@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message Coordinate {
+    int32 x = 1;
+    int32 y = 2;
+    int32 z = 3;
+}
+
+message Heartbeat {
+    float panAngle = 1;
+    float tiltAngle = 2;
+    repeated uint32 errorCode = 3; // Sử dụng kiểu uint32 để biểu diễn array
+}
