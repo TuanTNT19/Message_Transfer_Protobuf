@@ -66,9 +66,6 @@ bool Buffer::processData(char& header, char* data, size_t dataSize, size_t &actu
 
     std::memcpy(data, &buffer[headerPos + 1], actualDataSize);
 
-    // Không cần thêm ký tự null ở cuối vì đây là dữ liệu nhị phân
-    // data[actualDataSize] = '\0';
-
     head = headerPos + footerStart + sizeof(footer) - 1;
 
     return true;
@@ -97,4 +94,3 @@ void Buffer::printBuffer() {
         }
         std::cout << std::endl;
     }
-

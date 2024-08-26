@@ -19,8 +19,6 @@ void *Thread_func1(void *para){
     Mess = new ReceiveMessage;
     int *i = (int *)para;
     int f = *i;
-    Coordinate coor;
-    Heartbeat heartbeat;
     char buffread[32];
     char header;
     char data[32] = {0};
@@ -28,22 +26,20 @@ void *Thread_func1(void *para){
     size_t bytesRead;
 
     while (1) {
-         if (Mess->Receive(fd, buffread, bytesRead)){
- //           cout <<"BytesRead: " << bytesRead << endl;
-
+        if (Mess->Receive(fd, buffread, bytesRead)){
             buff.pushData(buffread, bytesRead);
             while (buff.processData(header, data, sizeof(data) - 1, dataSize)) {
                 if (header == 'B') {
-                    Heartbeat heartbeat; // Không cần khởi tạo lại mỗi vòng lặp
-                    if (heartbeat.ParseFromArray(data, dataSize) ) {
+                    Heartbeat heartbeat;
+                    if (heartbeat.ParseFromArray(data, dataSize)) {
                         mq.enqueue(1);
                         mq.enqueue(heartbeat);   
                     } else {
                         std::cerr << "Failed to parse Protobuf Heartbeat message" << std::endl;
                     }
                 } else if (header == 'A') {
-                    Coordinate coor; // Không cần khởi tạo lại mỗi vòng lặp
-                    if (coor.ParseFromArray(data, dataSize) ) {
+                    Coordinate coor;
+                    if (coor.ParseFromArray(data, dataSize)) {
                         mq.enqueue(2);
                         mq.enqueue(coor);
                     } else {
@@ -52,12 +48,10 @@ void *Thread_func1(void *para){
                 } else {
                     std::cerr << "Unexpected header value: " << static_cast<int>(header) << std::endl;
                 }
-
-                // Làm sạch dữ liệu đã được xử lý khỏi buffer
-                buff.clearProcessedData();
+                // Làm sạch dữ liệu đã được xử lý khỏi buffer (nếu cần)
+                 buff.clearProcessedData();
             }            
         }
-
         usleep(1200);
     }
 
@@ -71,22 +65,19 @@ void *Thread_func2(void *para){
         auto header = mq.dequeue();    
         int check = get <int> (header);
         if (check == 2){
-             auto data = mq.dequeue();
-            Coordinate coor2 =  get<Coordinate>(data);
+            auto data = mq.dequeue();
+            Coordinate coor2 = get<Coordinate>(data);
             coor2 = dp.CoorProcess(coor2, fdc);
             mqt.enqueue(2);
             mqt.enqueue(coor2);
-        }
-        else if (check == 1){
+        } else if (check == 1){
             auto data = mq.dequeue();
-            Heartbeat heartbeat2 =  get<Heartbeat>(data); 
+            Heartbeat heartbeat2 = get<Heartbeat>(data); 
             heartbeat2 = dp.HeartProcess(heartbeat2, fdh);          
             mqt.enqueue(1);
             mqt.enqueue(heartbeat2);
         }
-
     }
-
     return NULL;
 }
 
@@ -98,18 +89,16 @@ void *Thread_func3(void *para){
     while (1) {
         auto header = mqt.dequeue();
         int check = get <int> (header);
-        if ( check == 1){
+        if (check == 1){
             auto data = mqt.dequeue();
-            Heartbeat heartbeat3 =  get <Heartbeat>(data);
-            SendMsg.SendHeart (f, heartbeat3);
-        }
-        else if (check == 2){
+            Heartbeat heartbeat3 = get<Heartbeat>(data);
+            SendMsg.SendHeart(f, heartbeat3);
+        } else if (check == 2){
             auto data = mqt.dequeue();
-            Coordinate coor3 =  get <Coordinate>(data);
+            Coordinate coor3 = get<Coordinate>(data);
             SendMsg.SendCoor(f, coor3);            
         }
     }
-
     return NULL;
 }
 
