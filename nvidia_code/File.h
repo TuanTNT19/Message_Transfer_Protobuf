@@ -15,4 +15,3 @@ int openTextFile(const char *filename);
 int openSerialPort(const char* portname) ;
 
 bool configureSerialPort(int fd, int speed);
-

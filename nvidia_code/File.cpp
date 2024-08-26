@@ -59,4 +59,3 @@ bool configureSerialPort(int fd, int speed) {
     }
     return true;
 }
-

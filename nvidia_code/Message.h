@@ -17,6 +17,6 @@ class Message{
 
 	Coordinate coor;
 	Heartbeat heartbeat;
-	virtual bool Receive(int fd) ;
-	virtual int Parse ();
+	virtual int Receive(int fd, char *buffer, size_t &byteread);
+	//virtual int Parse ();
 };

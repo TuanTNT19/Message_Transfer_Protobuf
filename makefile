@@ -1,6 +1,6 @@
 build1:
 
-	g++ main1.cpp mess.pb.cc -lprotobuf -pthread -o main1
+	g++ main1.cpp mess.pb.cc Buffer.cpp -lprotobuf -pthread -o main1
 build2:
 	g++ main2.cpp mess.pb.cc -lprotobuf -pthread -o main2
 build2344442:
