@@ -58,7 +58,7 @@ void *Thread_func1(void *para){
             }            
         }
 
-        usleep(1250);
+        usleep(1200);
     }
 
     delete Mess;

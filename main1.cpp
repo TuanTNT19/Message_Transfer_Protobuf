@@ -12,39 +12,16 @@
 #include <pthread.h>
 #include "mess.pb.h"
 #include "Buffer.h"
+#include <time.h>
 
 using namespace std;
 
 pthread_t id1, id2;
 int fd0; 
 
-    Coordinate coorarr[3];
-    Heartbeat heararr[3];
+Coordinate coorarr[3];
+Heartbeat heararr[3];
     
-int countCharsBetweenAB(const char* arr) {
-    int t = -1;
-    for (int i = 0; i < 32; i++){
-        if ((arr[i] == 'E') && (arr[i + 1] == 'N') && (arr[i + 2] == 'D')){
-            t = i;
-            break;
-        }
-    }
-
-    return (t - 1);
-}
-
-size_t countAllCharacters(const char* arr, size_t size) {
-    size_t count = 0;
-    for (size_t i = 0; i < size; ++i) {
-        ++count;
-        if (arr[i] == '\0') {
-            // Nếu bạn muốn dừng khi gặp ký tự null, bỏ dòng này.
-            // break; 
-        }
-    }
-    return count;
-}
-
 int openSerialPort(const char* portname) {
     int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
@@ -107,6 +84,8 @@ void *sendMessage(void *para) {
     char header;
     size_t headerSize = 1;
     int fd = *i;
+    int sendcount = 0;
+    time_t lastPrintTime = time(nullptr); 
 
     while (true) {
 
@@ -127,11 +106,11 @@ void *sendMessage(void *para) {
             if (written <= 0) {
                 std::cerr << "ERROR: Failed to write to serial port" << std::endl;
             }
-            else {
-                cout <<"Data sent:" << coor.x() <<" " << coor.y() <<" " << coor.z() << endl;
-            } 
+            // else {
+            //     cout <<"Data sent:" << coor.x() <<" " << coor.y() <<" " << coor.z() << endl;
+            // } 
 
-
+            sendcount ++;
             delete[] data;
         } else if (MessType == 2) {
             header = 'B';
@@ -141,7 +120,7 @@ void *sendMessage(void *para) {
             for (int i = 0; i < 6; ++i) {
                 heartbeat.add_errorcode(generateRandomNumber(0, 255));
             }
-            
+
             size_t size = heartbeat.ByteSizeLong();
             char* data = new char[size];
             heartbeat.SerializeToArray(data, size);
@@ -152,10 +131,18 @@ void *sendMessage(void *para) {
                 std::cerr << "ERROR: Failed to write to serial port" << std::endl;
             }
 
+            sendcount ++;
             delete[] data;
         }
 
-        usleep(1250);
+        time_t currentTime = time(nullptr);
+        if (difftime(currentTime, lastPrintTime) >= 1.0) {
+            cout <<"                 sendcount : " << sendcount << endl;
+            sendcount = 0;
+            lastPrintTime = currentTime;
+        }
+
+        usleep(1200);
     }
 }
 
@@ -168,6 +155,8 @@ void *receiveMessage(void *para) {
     char header;
     char data[32] = {0};
     size_t dataSize;
+    int receivecount = 0;
+    time_t lastPrintTime1 = time(nullptr);
 
     while (true) {
         ssize_t bytesRead = read(fd, buffer, buffer_size);
@@ -177,28 +166,30 @@ void *receiveMessage(void *para) {
             while (buff.processData(header, data, sizeof(data) - 1, dataSize)) {
                 if (header == 'B') {
                     Heartbeat heartbeat;
-                    if (heartbeat.ParseFromArray(data, dataSize)) {
-                        cout << "Received Heartbeat message: "
-                             << "panAngle=" << heartbeat.panangle() << ", "
-                             << "tiltAngle=" << heartbeat.tiltangle() << ", "
-                             << "errorCodes=[";
-                        for (int i = 0; i < heartbeat.errorcode_size(); ++i) {
-                            cout << (i > 0 ? ", " : "") << heartbeat.errorcode(i);
-                        }
-                        cout << "]" << endl;
-                    } else {
+                    if (heartbeat.ParseFromArray(data, dataSize) < 0) {
+                    //     cout << "Received Heartbeat message: "
+                    //          << "panAngle=" << heartbeat.panangle() << ", "
+                    //          << "tiltAngle=" << heartbeat.tiltangle() << ", "
+                    //          << "errorCodes=[";
+                    //     for (int i = 0; i < heartbeat.errorcode_size(); ++i) {
+                    //         cout << (i > 0 ? ", " : "") << heartbeat.errorcode(i);
+                    //     }
+                    //     cout << "]" << endl;
+                    // } else {
                         std::cerr << "Failed to parse Protobuf Heartbeat message" << std::endl;
                     }
+                    receivecount ++;
                 } else if (header == 'A') {
                     Coordinate coor;
-                    if (coor.ParseFromArray(data, dataSize)) {
-                        cout << "Received Coordinate message: "
-                             << "x=" << coor.x() << ", "
-                             << "y=" << coor.y() << ", "
-                             << "z=" << coor.z() << endl;
-                    } else {
+                    if (coor.ParseFromArray(data, dataSize) < 0) {
+                    //     cout << "Received Coordinate message: "
+                    //          << "x=" << coor.x() << ", "
+                    //          << "y=" << coor.y() << ", "
+                    //          << "z=" << coor.z() << endl;
+                    // } else {
                         std::cerr << "Failed to parse Protobuf Coordinate message" << std::endl;
                     }
+                    receivecount ++;
                 } else {
                     std::cerr << "Unexpected header value: " << static_cast<int>(header) << std::endl;
                 }
@@ -211,7 +202,15 @@ void *receiveMessage(void *para) {
         } else {
             std::cerr << "ERROR: Failed to read from serial port: " << strerror(errno) << std::endl;
         }
-        usleep(1250);
+
+        time_t currentTime = time(nullptr);
+        if (difftime(currentTime, lastPrintTime1) >= 1.0) {
+            cout <<"                 receivecount : " << receivecount << endl;
+            receivecount = 0;
+            lastPrintTime1 = currentTime;
+        }
+
+        usleep(1200);
     }
 }
 
