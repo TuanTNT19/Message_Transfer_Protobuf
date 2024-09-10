@@ -1,10 +1,9 @@
 build:
-	g++ -std=c++17 main.cpp Buffer.cpp  Message.cpp DataProcess.cpp SendMessage.cpp ReceiveMessage.cpp File.cpp mess.pb.cc -o main -lprotobuf -pthread
+	g++ -std=c++17 main.cpp Buffer.cpp   DataProcess.cpp SendMessage.cpp ReceiveMessage.cpp File.cpp mess.pb.cc -o main -lprotobuf -pthread
 clean:
 	rm -rf main *.o main2 *.txt
 build_nvidia:
 	aarch64-linux-gnu-g++ -I/home/tuantnt/Desktop/protobuf_arm/protobuf_set/include -std=c++17 -c Buffer.cpp -o Buffer.o
-	aarch64-linux-gnu-g++ -I/home/tuantnt/Desktop/protobuf_arm/protobuf_set/include -std=c++17 -c Message.cpp -o Message.o
 	aarch64-linux-gnu-g++ -I/home/tuantnt/Desktop/protobuf_arm/protobuf_set/include -std=c++17 -c ReceiveMessage.cpp -o ReceiveMessage.o
 	aarch64-linux-gnu-g++ -I/home/tuantnt/Desktop/protobuf_arm/protobuf_set/include -std=c++17 -c SendMessage.cpp -o SendMessage.o
 	aarch64-linux-gnu-g++ -I/home/tuantnt/Desktop/protobuf_arm/protobuf_set/include -std=c++17 -c DataProcess.cpp -o DataProcess.o

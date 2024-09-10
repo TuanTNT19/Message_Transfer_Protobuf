@@ -1,5 +1,4 @@
 #include "DataProcess.h"
-#include "Message.h"
 #include "ReceiveMessage.h"
 #include "SendMessage.h"
 #include "File.h"
@@ -8,15 +7,15 @@
 
 pthread_t id1, id2, id3;
 int fd, fdc, fdh;
-Message *Mess;
 
-Buffer buff(64);
+
+Buffer buff(72);
 SafeQueue<int, Coordinate, Heartbeat> mq(60);
 SafeQueue<int, Coordinate, Heartbeat> mqt(60);
 
 void *Thread_func1(void *para){
     cout << "Thread 1" << endl;
-    Mess = new ReceiveMessage;
+    ReceiveMessage Mess;
     int *i = (int *)para;
     int f = *i;
     char buffread[32];
@@ -26,7 +25,7 @@ void *Thread_func1(void *para){
     size_t bytesRead;
 
     while (1) {
-        if (Mess->Receive(fd, buffread, bytesRead)){
+        Mess.Receive(fd, buffread, bytesRead);
             buff.pushData(buffread, bytesRead);
             while (buff.processData(header, data, sizeof(data) - 1, dataSize)) {
                 if (header == 'B') {
@@ -51,11 +50,11 @@ void *Thread_func1(void *para){
                 // Làm sạch dữ liệu đã được xử lý khỏi buffer (nếu cần)
                  buff.clearProcessedData();
             }            
-        }
+
         usleep(1200);
     }
 
-    delete Mess;
+   // delete Mess;
     return NULL;
 }
 

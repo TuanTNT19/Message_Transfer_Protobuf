@@ -13,14 +13,15 @@ bool Buffer::pushData(const char* data, size_t size) {
                 std::memmove(&buffer[0], &buffer[head], tail - head);
                 tail -= head;
                 head = 0;
+            if (tail + size > buffer.size()) {
+            std::cerr << "Buffer overflow!" << std::endl;
+            cout <<"TAIL: " << tail << endl;
+            return false;
+        }
             }
         }
 
-        // Nếu sau khi di chuyển vẫn không đủ chỗ, báo lỗi
-        if (tail + size > buffer.size()) {
-            std::cerr << "Buffer overflow!" << std::endl;
-            return false;
-        }
+    
 
         // Copy dữ liệu vào buffer
         std::memcpy(&buffer[tail], data, size);
@@ -58,9 +59,13 @@ bool Buffer::processData(char& header, char* data, size_t dataSize, size_t &actu
 
     size_t dataEnd = headerPos + footerStart;
     actualDataSize = dataEnd - (headerPos + 1);
-
+ //       std::cerr << "Provided data array is too small!" << std::endl;
+        cout <<"dataend: " << dataEnd <<". Header pos: "<< headerPos << endl;
+        cout <<"dataSize: " << dataSize <<" . Actual DataSize: " << actualDataSize << endl;
     if (actualDataSize > dataSize) {
         std::cerr << "Provided data array is too small!" << std::endl;
+        cout <<"dataend: " << dataEnd <<". Header pos: "<< headerPos << endl;
+        cout <<"dataSize: " << dataSize <<" . Actual DataSize: " << actualDataSize << endl;
         return false;
     }
 

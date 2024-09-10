@@ -98,4 +98,3 @@ void Buffer::printBuffer() {
         }
         std::cout << std::endl;
     }
-
