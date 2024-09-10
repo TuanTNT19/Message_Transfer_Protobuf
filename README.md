@@ -9,8 +9,9 @@ To install Protobuf on your PC, follow these steps:
 
 Install the necessary packages for building Protobuf:
 
-`sudo apt-get update
-sudo apt-get install autoconf automake libtool curl make g++ unzip `
+`sudo apt-get update`
+
+`sudo apt-get install autoconf automake libtool curl make g++ unzip `
 
 ### 1.2. Download Protobuf Source Code
 
@@ -55,6 +56,7 @@ To cross-compile Protobuf for Nvidia Xavier NX, follow these steps:
 Install the cross-compilation tools for aarch64:
 
 `sudo apt-get update`
+
 `sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu ` 
 
 ### 2.2. Download Protobuf Source Code
@@ -62,7 +64,9 @@ Install the cross-compilation tools for aarch64:
 Download the Protobuf source code for version 3.13.0:
 
 `wget https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.13.0.zip`
+
 `unzip v3.13.0.zip`
+
 `cd protobuf-3.13.0 ` 
 
 ### 2.3. Install Cross-Compilation Dependencies
@@ -77,6 +81,7 @@ Install the necessary tools and libraries for cross-compilation:
 Set environment variables for cross-compiling for aarch64:
 
 `export CC=aarch64-linux-gnu-gcc`
+
 `export CXX=aarch64-linux-gnu-g++ ` 
 
 ### 2.5. Configure and Build Protobuf
@@ -84,8 +89,13 @@ Set environment variables for cross-compiling for aarch64:
 Configure and build Protobuf for aarch64:
 
 `git submodule update --init --recursive`
+
 `./autogen.sh`
+
 `./configure --host=aarch64-linux-gnu --prefix=/path/to/install`
+
 For example, if your path is /home/tuantnt/Desktop/protobuf_arm/protobuf_set/
+
 `make`
+
 `make install `
