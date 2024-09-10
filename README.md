@@ -4,12 +4,11 @@
 The program is designed to facilitate communication between the PC and Nvidia Xavier NX at a frequency of 800Hz. At any given time, the PC will transmit one of the following two messages:
 
 Message 1: Coordinates x, y, z
-
-{
-  int x;
-  int y;
-  int z;
-}
+    {
+      int x;
+      int y;
+      int z;
+    }
 
 Message 2: Heartbeat
 
