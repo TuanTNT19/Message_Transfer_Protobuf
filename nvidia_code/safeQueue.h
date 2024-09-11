@@ -9,21 +9,19 @@ template<typename... Types>
 class SafeQueue {
 private:
     myQueue<Types...> queue;
-    pthread_mutex_t mtx;
-    pthread_cond_t cv;
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;  // Khởi tạo mutex
+    pthread_cond_t cv = PTHREAD_COND_INITIALIZER;      // Khởi tạo biến điều kiện
 
 public:
     // Constructor để khởi tạo SafeQueue với kích thước cho trước
     SafeQueue(unsigned capacity)
         : queue(capacity) {
-        pthread_mutex_init(&mtx, nullptr);
-        pthread_cond_init(&cv, nullptr);
+
     }
 
     // Destructor để giải phóng tài nguyên
     ~SafeQueue() {
-        pthread_mutex_destroy(&mtx);
-        pthread_cond_destroy(&cv);
+
     }
 
     // Thêm phần tử vào queue

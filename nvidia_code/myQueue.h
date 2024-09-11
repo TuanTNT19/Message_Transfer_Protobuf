@@ -36,7 +36,7 @@ public:
         return (size == 0);
     }
 
-    // Thêm phần tử vào cuối Queue
+    // Thêm phần tử vào đầu Queue ( cuối mang)
     void push(const std::variant<Types...>& item) {
         if (isFull()) {
             throw overflow_error("Queue is full");
@@ -46,7 +46,7 @@ public:
         size = size + 1;
     }
 
-    // Lấy phần tử từ đầu Queue
+    // Lấy phần tử từ cuối queue ( đầu mảng)
     std::variant<Types...> pop() {
         if (isEmpty()) {
             throw out_of_range("Queue is empty");
@@ -55,22 +55,6 @@ public:
         front = (front + 1) % capacity;
         size = size - 1;
         return item;
-    }
-
-    // Lấy phần tử đầu tiên trong Queue
-    std::variant<Types...> getFront() const {
-        if (isEmpty()) {
-            throw out_of_range("Queue is empty");
-        }
-        return array[front];
-    }
-
-    // Lấy phần tử cuối cùng trong Queue
-    std::variant<Types...> getRear() const {
-        if (isEmpty()) {
-            throw out_of_range("Queue is empty");
-        }
-        return array[rear];
     }
 
     // Lấy kích thước của Queue

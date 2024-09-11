@@ -1,5 +1,4 @@
-build:
-	g++ -std=c++17 main.cpp Buffer.cpp   DataProcess.cpp SendMessage.cpp ReceiveMessage.cpp File.cpp mess.pb.cc -o main -lprotobuf -pthread
+
 clean:
 	rm -rf main *.o main2 *.txt
 build_nvidia:

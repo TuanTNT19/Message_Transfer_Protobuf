@@ -85,25 +85,15 @@ void *sendMessage(void *para) {
     char header;
     size_t headerSize = 1;
     int fd = *i;
-    int checko = 0;
-    int checkh = 0;
-    int sendcount = 0;
-    time_t lastPrintTime = time(nullptr); 
+
     while (true) {
-
-        if (checko == 3){
-            checko = 0;
-        }
-        if (checkh == 3){
-            checkh = 0;
-        }
-
         int MessType = generateRandomNumber(1, 2);
         if (MessType == 1) {
             header = 'A';
             Coordinate coor;
-            coor = coorarr[checko];
-
+            coor.set_x(generateRandomNumber(0, 100));
+            coor.set_y(generateRandomNumber(0, 100));
+            coor.set_z(generateRandomNumber(0, 100));
             size_t size = coor.ByteSizeLong();
             char* data = new char[size];
             coor.SerializeToArray(data, size);
@@ -113,17 +103,17 @@ void *sendMessage(void *para) {
             if (written <= 0) {
                 std::cerr << "ERROR: Failed to write to serial port" << std::endl;
             }
-            // else {
-            //     cout <<"Data sent:" << coor.x() <<" " << coor.y() <<" " << coor.z() << endl;
-            // } 
-            checko ++;
-            sendcount ++;
+
+
             delete[] data;
         } else if (MessType == 2) {
             header = 'B';
             Heartbeat heartbeat;
-            heartbeat = heararr[checkh];
-
+            heartbeat.set_panangle(static_cast<float>(generateRandomNumber(0, 360)));
+            heartbeat.set_tiltangle(static_cast<float>(generateRandomNumber(0, 360)));
+            for (int i = 0; i < 6; ++i) {
+                heartbeat.add_errorcode(generateRandomNumber(0, 360));
+            }
             size_t size = heartbeat.ByteSizeLong();
             char* data = new char[size];
             heartbeat.SerializeToArray(data, size);
@@ -133,18 +123,10 @@ void *sendMessage(void *para) {
             if (written  <= 0) {
                 std::cerr << "ERROR: Failed to write to serial port" << std::endl;
             }
-            checkh++;
-            sendcount ++;
+
             delete[] data;
         }
 
-
-        time_t currentTime = time(nullptr);
-        if (difftime(currentTime, lastPrintTime) >= 1.0) {
-            cout <<"                 sendcount : " << sendcount << endl;
-            sendcount = 0;
-            lastPrintTime = currentTime;
-        }
 
         usleep(1200);
     }
@@ -159,8 +141,7 @@ void *receiveMessage(void *para) {
     char header;
     char data[32] = {0};
     size_t dataSize;
-    int receivecount = 0;
-    time_t lastPrintTime1 = time(nullptr);
+
 
     while (true) {
         ssize_t bytesRead = read(fd, buffer, buffer_size);
@@ -171,29 +152,27 @@ void *receiveMessage(void *para) {
                 if (header == 'B') {
                     Heartbeat heartbeat;
                     if (heartbeat.ParseFromArray(data, dataSize) < 0) {
-                    //     cout << "Received Heartbeat message: "
-                    //          << "panAngle=" << heartbeat.panangle() << ", "
-                    //          << "tiltAngle=" << heartbeat.tiltangle() << ", "
-                    //          << "errorCodes=[";
-                    //     for (int i = 0; i < heartbeat.errorcode_size(); ++i) {
-                    //         cout << (i > 0 ? ", " : "") << heartbeat.errorcode(i);
-                    //     }
-                    //     cout << "]" << endl;
-                    // } else {
+                        cout << "Received Heartbeat message: "
+                             << "panAngle=" << heartbeat.panangle() << ", "
+                             << "tiltAngle=" << heartbeat.tiltangle() << ", "
+                             << "errorCodes=[";
+                        for (int i = 0; i < heartbeat.errorcode_size(); ++i) {
+                            cout << (i > 0 ? ", " : "") << heartbeat.errorcode(i);
+                        }
+                        cout << "]" << endl;
+                    } else {
                         std::cerr << "Failed to parse Protobuf Heartbeat message" << std::endl;
                     }
-                    receivecount++;
                 } else if (header == 'A') {
                     Coordinate coor;
                     if (coor.ParseFromArray(data, dataSize) < 0) {
-                    //     cout << "Received Coordinate message: "
-                    //          << "x=" << coor.x() << ", "
-                    //          << "y=" << coor.y() << ", "
-                    //          << "z=" << coor.z() << endl;
-                    // } else {
+                        cout << "Received Coordinate message: "
+                             << "x=" << coor.x() << ", "
+                             << "y=" << coor.y() << ", "
+                             << "z=" << coor.z() << endl;
+                    } else {
                         std::cerr << "Failed to parse Protobuf Coordinate message" << std::endl;
                     }
-                    receivecount++;
                 } else {
                     std::cerr << "Unexpected header value: " << static_cast<int>(header) << std::endl;
                 }
@@ -207,13 +186,6 @@ void *receiveMessage(void *para) {
             std::cerr << "ERROR: Failed to read from serial port: " << strerror(errno) << std::endl;
         }
 
-                time_t currentTime = time(nullptr);
-        if (difftime(currentTime, lastPrintTime1) >= 1.0) {
-            cout <<"                 receivecount : " << receivecount << endl;
-            receivecount = 0;
-            lastPrintTime1 = currentTime;
-        }
-
         usleep(1200);
     }
 }
@@ -222,34 +194,6 @@ void *receiveMessage(void *para) {
 
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-            int i = 300;
-        coorarr[0].set_x(i + 1);
-        coorarr[0].set_y(i + 2);
-        coorarr[0].set_z(i + 3);
-        heararr[0].set_panangle(static_cast<float>(i+1));
-        heararr[0].set_tiltangle(static_cast<float>(i+2));
-        for (int j = 0; j < 6; ++j) {
-                heararr[0].add_errorcode(i+3);
-            }
-        coorarr[1].set_x(i+4);
-        coorarr[1].set_y(i+5);
-        coorarr[1].set_z(i+6);
-        heararr[1].set_panangle(static_cast<float>(i+4));
-        heararr[1].set_tiltangle(static_cast<float>(i+5));
-        for (int j = 0; j < 6; ++j) {
-                heararr[1].add_errorcode(i+6);
-        }
-        coorarr[2].set_x(i+7);
-        coorarr[2].set_y(i+8);
-        coorarr[2].set_z(i+9);
-        heararr[2].set_panangle(static_cast<float>(i+7));
-        heararr[2].set_tiltangle(static_cast<float>(i+8));
-        for (int j = 0; j < 6; ++j) {
-                heararr[2].add_errorcode(i+9);
-        }
-
-
     const char* portname0 = "/dev/ttyUSB0";
     fd0 = openSerialPort(portname0);
     if (fd0 < 0)
