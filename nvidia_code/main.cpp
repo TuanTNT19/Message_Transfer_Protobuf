@@ -10,8 +10,8 @@ int fd, fdc, fdh;
 
 
 Buffer buff(72);
-SafeQueue<int, Coordinate, Heartbeat> mq(60);
-SafeQueue<int, Coordinate, Heartbeat> mqt(60);
+SafeQueue<int, Coordinate, Heartbeat> mq;
+SafeQueue<int, Coordinate, Heartbeat> mqt;
 
 void *Thread_func1(void *para){
     cout << "Thread 1" << endl;
