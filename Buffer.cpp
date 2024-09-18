@@ -31,7 +31,6 @@ bool Buffer::pushData(const char* data, size_t size) {
 
 bool Buffer::processData(char& header, char* data, size_t dataSize, size_t &actualDataSize) {
    if (head >= tail) {
-//        std::cerr << "Buffer is empty!" << std::endl;
         return false;
     }
 
@@ -42,18 +41,16 @@ bool Buffer::processData(char& header, char* data, size_t dataSize, size_t &actu
     }
 
     if (headerPos >= tail) {
-//        std::cerr << "Header 'A' or 'B' not found!" << std::endl;
         return false;
     }
 
     header = buffer[headerPos];
 
-    // Tìm footer "END" trong buffer sau header
+//     Tìm footer "END" trong buffer sau header
     const char footer[] = "END";
     size_t footerStart = std::string(&buffer[headerPos], tail - headerPos).find(footer);
 
     if (footerStart == std::string::npos) {
-//        std::cerr << "Footer 'END' not found or data is not complete!" << std::endl;
         return false;
     }
 
@@ -67,8 +64,6 @@ bool Buffer::processData(char& header, char* data, size_t dataSize, size_t &actu
 
     std::memcpy(data, &buffer[headerPos + 1], actualDataSize);
 
-    // Không cần thêm ký tự null ở cuối vì đây là dữ liệu nhị phân
-    // data[actualDataSize] = '\0';
 
     head = headerPos + footerStart + sizeof(footer) - 1;
 

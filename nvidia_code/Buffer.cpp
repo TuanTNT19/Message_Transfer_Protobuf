@@ -13,25 +13,24 @@ bool Buffer::pushData(const char* data, size_t size) {
                 std::memmove(&buffer[0], &buffer[head], tail - head);
                 tail -= head;
                 head = 0;
-            if (tail + size > buffer.size()) {
-            std::cerr << "Buffer overflow!" << std::endl;
-            cout <<"TAIL: " << tail << endl;
-            return false;
-        }
             }
         }
 
-    
+        // Nếu sau khi di chuyển vẫn không đủ chỗ, báo lỗi
+        if (tail + size > buffer.size()) {
+            std::cerr << "Buffer overflow!" << std::endl;
+            return false;
+        }
 
         // Copy dữ liệu vào buffer
         std::memcpy(&buffer[tail], data, size);
         tail += size;
+
         return true;
     }
 
 bool Buffer::processData(char& header, char* data, size_t dataSize, size_t &actualDataSize) {
    if (head >= tail) {
-//        std::cerr << "Buffer is empty!" << std::endl;
         return false;
     }
 
@@ -42,34 +41,29 @@ bool Buffer::processData(char& header, char* data, size_t dataSize, size_t &actu
     }
 
     if (headerPos >= tail) {
-//        std::cerr << "Header 'A' or 'B' not found!" << std::endl;
         return false;
     }
 
     header = buffer[headerPos];
 
-    // Tìm footer "END" trong buffer sau header
+//     Tìm footer "END" trong buffer sau header
     const char footer[] = "END";
     size_t footerStart = std::string(&buffer[headerPos], tail - headerPos).find(footer);
 
     if (footerStart == std::string::npos) {
-//        std::cerr << "Footer 'END' not found or data is not complete!" << std::endl;
         return false;
     }
 
     size_t dataEnd = headerPos + footerStart;
     actualDataSize = dataEnd - (headerPos + 1);
- //       std::cerr << "Provided data array is too small!" << std::endl;
-        cout <<"dataend: " << dataEnd <<". Header pos: "<< headerPos << endl;
-        cout <<"dataSize: " << dataSize <<" . Actual DataSize: " << actualDataSize << endl;
+
     if (actualDataSize > dataSize) {
         std::cerr << "Provided data array is too small!" << std::endl;
-        cout <<"dataend: " << dataEnd <<". Header pos: "<< headerPos << endl;
-        cout <<"dataSize: " << dataSize <<" . Actual DataSize: " << actualDataSize << endl;
         return false;
     }
 
     std::memcpy(data, &buffer[headerPos + 1], actualDataSize);
+
 
     head = headerPos + footerStart + sizeof(footer) - 1;
 
